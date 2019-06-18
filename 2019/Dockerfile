@@ -22,8 +22,10 @@ RUN apt-get update \
         fontconfig \
         fonts-texgyre \
         git \
+        gnupg \
         gosu \
         locales \
+        make \
         unzip \
         wget \
     && apt-get clean
@@ -63,7 +65,13 @@ RUN wget ftp://mirrors.ibiblio.org/CTAN/systems/texlive/tlnet/install-tl-unx.tar
   && tar xzvf install-tl-unx.tar.gz \
   && ./install-tl-*/install-tl -profile texlive.profile \
   && rm -rf install-tl-* \
-  && rm texlive.profile
+  && rm texlive.profile \
+  && /usr/local/texlive/2019/bin/x86_64-linux/tlmgr install \
+    biber \
+    biblatex \
+    chktex \
+    logreq \
+    latexmk
 
 ENV PATH="/usr/local/texlive/2019/bin/x86_64-linux:${PATH}"
 
