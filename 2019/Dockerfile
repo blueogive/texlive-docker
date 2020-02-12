@@ -85,7 +85,7 @@ ARG VCS_REF=${VCS_REF}
 ARG BUILD_DATE=${BUILD_DATE}
 
 # Add image metadata
-LABEL org.label-schema.license="http://www.tug.org/texlive/" \
+LABEL org.label-schema.license="http://www.tug.org/texlive/copying.html" \
     org.label-schema.vendor="TeX Users Group (TUG)" \
     org.label-schema.name="TeXLive" \
     org.label-schema.description="Docker image of TeXLive." \
