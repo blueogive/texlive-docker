@@ -10,9 +10,10 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-FROM ubuntu:bionic-20190515
+FROM ubuntu:focal-20200916
 
-USER root
+ENV PANDOC_TEMPLATES_VERSION=2.11.1 \
+    DEBIAN_FRONTEND=noninteractive
 
 ## Install some useful tools and dependencies for MRO
 RUN apt-get update \
@@ -26,6 +27,8 @@ RUN apt-get update \
         gosu \
         locales \
         make \
+        pandoc \
+        pandoc-citeproc \
         unzip \
         wget \
     && apt-get clean
@@ -41,6 +44,23 @@ ENV LC_ALL=en_US.UTF-8 \
     CT_FMODE=0775 \
     FONT_LOCAL=/usr/local/share/fonts
 ENV HOME=/home/${CT_USER}
+
+## Set a default user. Available via runtime flag `--user docker`
+## User should also have & own a home directory (e.g. for linked volumes to work properly).
+RUN useradd --create-home --uid ${CT_UID} --gid ${CT_GID} --shell ${SHELL} \
+    --password ${CT_USER} ${CT_USER}
+
+## Install pandoc-templates.
+RUN mkdir -p /opt/pandoc/templates \
+  && cd /opt/pandoc/templates \
+  && wget -q https://github.com/jgm/pandoc-templates/archive/${PANDOC_TEMPLATES_VERSION}.tar.gz \
+  && tar xzf ${PANDOC_TEMPLATES_VERSION}.tar.gz \
+  && rm ${PANDOC_TEMPLATES_VERSION}.tar.gz \
+  && mkdir -p /root/.pandoc \
+  && ln -s /opt/pandoc/templates /root/.pandoc/templates \
+  && mkdir -p ${HOME}/.pandoc \
+  && ln -s /opt/pandoc/templates ${HOME}/.pandoc/templates \
+  && chown -R ${CT_USER}:${CT_GID} ${HOME}/.pandoc
 
 COPY fonts.zip ${FONT_LOCAL}
 
@@ -59,6 +79,8 @@ RUN unzip fonts.zip \
 
 WORKDIR /root
 
+ARG TL_VERSION=${TL_VERSION}
+
 # Install TeX live
 COPY texlive.profile /root
 RUN wget ftp://mirrors.ibiblio.org/CTAN/systems/texlive/tlnet/install-tl-unx.tar.gz \
@@ -66,19 +88,14 @@ RUN wget ftp://mirrors.ibiblio.org/CTAN/systems/texlive/tlnet/install-tl-unx.tar
   && ./install-tl-*/install-tl -profile texlive.profile \
   && rm -rf install-tl-* \
   && rm texlive.profile \
-  && /usr/local/texlive/2019/bin/x86_64-linux/tlmgr install \
+  && /usr/local/texlive/${TL_VERSION}/bin/x86_64-linux/tlmgr install \
     biber \
     biblatex \
     chktex \
     logreq \
     latexmk
 
-ENV PATH="/usr/local/texlive/2019/bin/x86_64-linux:${PATH}"
-
-RUN useradd ${CT_USER} --uid ${CT_UID} --gid ${CT_GID} \
-    && mkdir -p --mode ${CT_FMODE} ${HOME}/work \
-    && chown -R ${CT_USER}:${CT_GID} ${HOME} \
-    && addgroup ${CT_USER} staff
+ENV PATH="/usr/local/texlive/${TL_VERSION}/bin/x86_64-linux:${PATH}"
 
 ARG VCS_URL=${VCS_URL}
 ARG VCS_REF=${VCS_REF}
