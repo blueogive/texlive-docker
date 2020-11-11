@@ -14,7 +14,7 @@ docker-check :
 	@echo Computing reclaimable space consumed by Docker artifacts
 	docker system df
 
-build: Dockerfile
+docker-build: Dockerfile
 	@docker build \
 	--build-arg TL_VERSION=$(TL_VERSION) \
 	--build-arg VCS_URL=$(VCS_URL) \
@@ -24,7 +24,7 @@ build: Dockerfile
 	--tag blueogive/texlive:$(TAG_DATE) \
 	--tag blueogive/texlive:latest .
 
-push : build
+docker-push : docker-build
 	@docker push blueogive/texlive:$(TL_VERSION)
 	@docker push blueogive/texlive:latest
 	@docker push blueogive/texlive:$(TAG_DATE)

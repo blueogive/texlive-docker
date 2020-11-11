@@ -111,7 +111,7 @@ LABEL org.label-schema.license="http://www.tug.org/texlive/copying.html" \
     org.label-schema.build-date=${BUILD_DATE} \
     maintainer="Mark Coggeshall <mark.coggeshall@gmail.com>"
 
-USER root
+USER ${CT_USER}
 
 WORKDIR ${HOME}/work
 
