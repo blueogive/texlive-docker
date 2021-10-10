@@ -10,9 +10,9 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-FROM ubuntu:focal-20200916
+FROM ubuntu:focal-20210921
 
-ENV PANDOC_TEMPLATES_VERSION=2.11.1 \
+ENV PANDOC_TEMPLATES_VERSION=2.14.2 \
     DEBIAN_FRONTEND=noninteractive
 
 ## Install some useful tools and dependencies for MRO
@@ -29,6 +29,7 @@ RUN apt-get update \
         make \
         pandoc \
         pandoc-citeproc \
+        python3-dev \
         unzip \
         wget \
     && apt-get clean
@@ -96,6 +97,8 @@ RUN wget ftp://mirrors.ibiblio.org/CTAN/systems/texlive/tlnet/install-tl-unx.tar
     latexmk
 
 ENV PATH="/usr/local/texlive/${TL_VERSION}/bin/x86_64-linux:${PATH}"
+
+RUN ln -s /usr/bin/python3 /usr/bin/python
 
 ARG VCS_URL=${VCS_URL}
 ARG VCS_REF=${VCS_REF}
