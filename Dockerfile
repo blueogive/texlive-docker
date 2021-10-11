@@ -21,6 +21,8 @@ RUN apt-get update \
         ca-certificates \
         build-essential \
         fontconfig \
+        fonts-cardo \
+        fonts-stix \
         fonts-texgyre \
         git \
         gnupg \
